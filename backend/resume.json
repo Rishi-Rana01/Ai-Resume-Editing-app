@@ -1,0 +1,24 @@
+{
+  "name": "John Doe",
+  "summary": "Experienced developer with a passion for building impactful software.",
+  "experience": [
+    {
+      "company": "Tech Corp",
+      "role": "Software Engineer",
+      "years": "2020-2023",
+      "description": "Developed scalable web applications."
+    }
+  ],
+  "education": [
+    {
+      "school": "State University",
+      "degree": "B.Sc. Computer Science",
+      "years": "2016-2020"
+    }
+  ],
+  "skills": [
+    "JavaScript",
+    "React",
+    "Python"
+  ]
+}
