@@ -147,28 +147,63 @@ export default function ResumeEditor() {
   };
 
   // Save Resume
-  const saveResume = async () => {
-    setSaving(true);
-    try {
-      // Clean resume object: remove undefined values
-      const cleanResume = JSON.parse(JSON.stringify(resume));
-      console.log('Saving resume:', cleanResume);
-      const res = await fetch(`${API_URL}/save-resume`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cleanResume), // send resume fields at top level
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(JSON.stringify(error.detail) || `Server error: ${res.status}`);
-      }
-      alert('Resume saved!');
-    } catch (err) {
-      alert('Failed to save resume: ' + err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
+  // Save Resume
+const saveResume = async () => {
+  setSaving(true);
+  try {
+    // Clean resume object: remove undefined values
+    const cleanResume = JSON.parse(JSON.stringify(resume));
+
+    // Convert complex fields to string
+    const formattedResume = {
+      ...cleanResume,
+      experience: Array.isArray(cleanResume.experience)
+        ? cleanResume.experience
+            .map(e => `${e.role} at ${e.company} (${e.years}) - ${e.description}`)
+            .join('; ')
+        : cleanResume.experience,
+      education: Array.isArray(cleanResume.education)
+        ? cleanResume.education
+            .map(e => `${e.degree} at ${e.school} (${e.years})`)
+            .join('; ')
+        : cleanResume.education,
+      skills: Array.isArray(cleanResume.skills)
+        ? cleanResume.skills.join(', ')
+        : cleanResume.skills,
+    };
+
+    console.log('Saving resume:', formattedResume);
+
+    const res = await fetch(`${API_URL}/save-resume`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(formattedResume),
+});
+
+
+    if (res.ok) {
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'resume.pdf';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  alert('Resume saved and downloaded!');
+} else {
+  const error = await res.json();
+  throw new Error(JSON.stringify(error.detail));
+}
+
+    alert('Resume saved!');
+  } catch (err) {
+    alert('Failed to save resume: ' + err.message);
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   // Download Resume
   const downloadResume = () => {
